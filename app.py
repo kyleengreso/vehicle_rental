@@ -1,6 +1,5 @@
 from flask import Flask, jsonify, request
 from flask_mysqldb import MySQL
-from http import HTTPStatus
 
 app = Flask(__name__)
 
