@@ -93,6 +93,18 @@ def update_customer(customer_id):
     except Exception as e:
         return jsonify({"error": "Database error", "details": str(e)}), 500
 
+# DELETE CUSTOMERS
+@app.route("/customers/<int:customer_id>", methods=["DELETE"])
+def delete_customer(customer_id):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("DELETE FROM Customers WHERE customer_id = %s", (customer_id,))
+        mysql.connection.commit()
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Customer not found"}), 404
+        return jsonify({"message": "Customer deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": "Database error", "details": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
