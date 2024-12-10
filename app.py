@@ -1,10 +1,15 @@
 from flask import Flask, jsonify, request
-from flask_sqlalchemy import SQLAlchemy
+from flask_mysqldb import MySQL
 from http import HTTPStatus
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:3306/vehicle_rental_db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["MYSQL_HOST"] = "localhost"
+app.config["MYSQL_USER"] = "root"
+app.config["MYSQL_PASSWORD"] = "root"
+app.config["MYSQL_DB"] = "vehicle_rental_db"
 
-db = SQLAlchemy(app)
+mysql = MySQL(app)
+
+if __name__ == "__main__":
+    app.run(debug=True)
