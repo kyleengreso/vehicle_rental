@@ -140,6 +140,96 @@ def add_customer():
     except Exception as e:
         return jsonify({"error": "Database error", "details": str(e)}), 500
 
+#ADD VEHICLES
+@app.route("/vehicles", methods=["POST"])
+def add_vehicle():
+    data = request.get_json()
+    reg_number = data.get("reg_number")
+    model_name = data.get("model_name")
+    daily_hire_rate = data.get("daily_hire_rate")
+    vehicle_type = data.get("vehicle_type")
+
+    # VALIDATION
+    if not reg_number or not isinstance(reg_number, str):
+        return jsonify({"error": "Registration number is required and must be a valid string"}), 400
+    if not model_name or not isinstance(model_name, str):
+        return jsonify({"error": "Model name is required and must be a valid string"}), 400
+    if not daily_hire_rate or not isinstance(daily_hire_rate, (int, float)):
+        return jsonify({"error": "Daily hire rate is required and must be a valid number"}), 400
+    if not vehicle_type or not isinstance(vehicle_type, str):
+        return jsonify({"error": "Vehicle type is required and must be a valid string"}), 400
+
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute(
+            "INSERT INTO Vehicles (reg_number, model_name, daily_hire_rate, vehicle_type) VALUES (%s, %s, %s, %s)",
+            (reg_number, model_name, daily_hire_rate, vehicle_type),
+        )
+        mysql.connection.commit()
+        return jsonify({"message": "Vehicle created successfully", "vehicle_id": cursor.lastrowid}), 201
+    except Exception as e:
+        return jsonify({"error": "Database error", "details": str(e)}), 500
+
+#ADD LOCATIONS
+@app.route("/locations", methods=["POST"])
+def add_location():
+    data = request.get_json()
+    location_name = data.get("location_name")
+    vehicle_id = data.get("vehicle_id")
+    is_available = data.get("is_available")
+
+    # VALIDATION
+    if not location_name or not isinstance(location_name, str):
+        return jsonify({"error": "Location name is required and must be a valid string"}), 400
+    if not vehicle_id or not isinstance(vehicle_id, int):
+        return jsonify({"error": "Vehicle ID is required and must be a valid number"}), 400
+    if not is_available or not isinstance(is_available, bool):
+        return jsonify({"error": "Availability is required and must be a valid boolean"}), 400
+
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute(
+            "INSERT INTO Locations (location_name, vehicle_id, is_available) VALUES (%s, %s, %s)",
+            (location_name, vehicle_id, is_available),
+        )
+        mysql.connection.commit()
+        return jsonify({"message": "Location created successfully", "location_id": cursor.lastrowid}), 201
+    except Exception as e:
+        return jsonify({"error": "Database error", "details": str(e)}), 500
+
+#ADD RENTALS
+@app.route("/rentals", methods=["POST"])
+def add_rental():
+    data = request.get_json()
+    customer_id = data.get("customer_id")
+    vehicle_id = data.get("vehicle_id")
+    date_from = data.get("date_from")
+    date_to = data.get("date_to")
+    total_cost = data.get("total_cost")
+
+    # VALIDATION
+    if not customer_id or not isinstance(customer_id, int):
+        return jsonify({"error": "Customer ID is required and must be a valid number"}), 400
+    if not vehicle_id or not isinstance(vehicle_id, int):
+        return jsonify({"error": "Vehicle ID is required and must be a valid number"}), 400
+    if not date_from or not isinstance(date_from, str):
+        return jsonify({"error": "Date from is required and must be a valid string"}), 400
+    if not date_to or not isinstance(date_to, str):
+        return jsonify({"error": "Date to is required and must be a valid string"}), 400
+    if not total_cost or not isinstance(total_cost, (int, float)):
+        return jsonify({"error": "Total cost is required and must be a valid number"}), 400
+
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute(
+            "INSERT INTO Rentals (customer_id, vehicle_id, date_from, date_to, total_cost) VALUES (%s, %s, %s, %s, %s)",
+            (customer_id, vehicle_id, date_from, date_to, total_cost),
+        )
+        mysql.connection.commit()
+        return jsonify({"message": "Rental created successfully", "rental_id": cursor.lastrowid}), 201
+    except Exception as e:
+        return jsonify({"error": "Database error", "details": str(e)}), 500
+        
 # UPDATE CUSTOMERS
 @app.route("/customers/<int:customer_id>", methods=["PUT"])
 def update_customer(customer_id):
