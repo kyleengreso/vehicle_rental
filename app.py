@@ -358,13 +358,23 @@ def update_rental(rental_id):
 def delete_customer(customer_id):
     try:
         cursor = mysql.connection.cursor()
+
+        # Set customer_id to NULL in Rentals table where this customer has a rental
+        update_rentals_query = "UPDATE Rentals SET customer_id = NULL WHERE customer_id = %s"
+        cursor.execute(update_rentals_query, (customer_id,))
+        mysql.connection.commit()
+
+        # Delete the customer
         cursor.execute("DELETE FROM Customers WHERE customer_id = %s", (customer_id,))
         mysql.connection.commit()
+
         if cursor.rowcount == 0:
             return jsonify({"error": "Customer not found"}), 404
+
         return jsonify({"message": "Customer deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": "Database error", "details": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True)
