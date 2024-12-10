@@ -376,5 +376,68 @@ def delete_customer(customer_id):
         return jsonify({"error": "Database error", "details": str(e)}), 500
 
 
+# DELETE VEHICLES
+@app.route("/vehicles/<int:vehicle_id>", methods=["DELETE"])
+def delete_vehicle(vehicle_id):
+    try:
+        cursor = mysql.connection.cursor()
+
+        # Set vehicle_id to NULL in Locations table where this vehicle is located
+        update_locations_query = "UPDATE Locations SET vehicle_id = NULL WHERE vehicle_id = %s"
+        cursor.execute(update_locations_query, (vehicle_id,))
+        mysql.connection.commit()
+
+        # Set vehicle_id to NULL in Rentals table where this vehicle is rented
+        update_rentals_query = "UPDATE Rentals SET vehicle_id = NULL WHERE vehicle_id = %s"
+        cursor.execute(update_rentals_query, (vehicle_id,))
+        mysql.connection.commit()
+
+        delete_vehicle_query = "DELETE FROM Vehicles WHERE vehicle_id = %s"
+        cursor.execute(delete_vehicle_query, (vehicle_id,))
+        mysql.connection.commit()
+
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Vehicle not found"}), 404
+
+        return jsonify({"message": "Vehicle deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+
+# DELETE LOCATIONS
+@app.route("/locations/<int:location_id>", methods=["DELETE"])
+def delete_location(location_id):
+    try:
+        cursor = mysql.connection.cursor()
+
+        delete_location_query = "DELETE FROM Locations WHERE location_id = %s"
+        cursor.execute(delete_location_query, (location_id,))
+        mysql.connection.commit()
+
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Location not found"}), 404
+
+        return jsonify({"message": "Location deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+
+
+# DELETE RENTALS
+@app.route("/rentals/<int:rental_id>", methods=["DELETE"])
+def delete_rental(rental_id):
+    try:
+        cursor = mysql.connection.cursor()
+
+        delete_rental_query = "DELETE FROM Rentals WHERE rental_id = %s"
+        cursor.execute(delete_rental_query, (rental_id,))
+        mysql.connection.commit()
+
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Rental not found"}), 404
+
+        return jsonify({"message": "Rental deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+
+
 if __name__ == "__main__":
     app.run(debug=True)
