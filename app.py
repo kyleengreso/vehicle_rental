@@ -229,7 +229,7 @@ def add_rental():
         return jsonify({"message": "Rental created successfully", "rental_id": cursor.lastrowid}), 201
     except Exception as e:
         return jsonify({"error": "Database error", "details": str(e)}), 500
-        
+
 # UPDATE CUSTOMERS
 @app.route("/customers/<int:customer_id>", methods=["PUT"])
 def update_customer(customer_id):
@@ -255,6 +255,103 @@ def update_customer(customer_id):
         return jsonify({"message": "Customer updated successfully"}), 200
     except Exception as e:
         return jsonify({"error": "Database error", "details": str(e)}), 500
+
+# UPDATE VEHICLES
+@app.route("/vehicles/<int:vehicle_id>", methods=["PUT"])
+def update_vehicle(vehicle_id):
+    data = request.get_json()
+    reg_number = data.get("reg_number")
+    model_name = data.get("model_name")
+    daily_hire_rate = data.get("daily_hire_rate")
+    vehicle_type = data.get("vehicle_type")
+
+    # VALIDATION
+    if not reg_number or not isinstance(reg_number, str):
+        return jsonify({"error": "Registration number is required and must be a valid string"}), 400
+    if not model_name or not isinstance(model_name, str):
+        return jsonify({"error": "Model name is required and must be a valid string"}), 400
+    if not daily_hire_rate or not isinstance(daily_hire_rate, (int, float)):
+        return jsonify({"error": "Daily hire rate is required and must be a valid number"}), 400
+    if not vehicle_type or not isinstance(vehicle_type, str):
+        return jsonify({"error": "Vehicle type is required and must be a valid string"}), 400
+
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute(
+            "UPDATE Vehicles SET reg_number = %s, model_name = %s, daily_hire_rate = %s, vehicle_type = %s WHERE vehicle_id = %s",
+            (reg_number, model_name, daily_hire_rate, vehicle_type, vehicle_id),
+        )
+        mysql.connection.commit()
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Vehicle not found"}), 404
+        return jsonify({"message": "Vehicle updated successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": "Database error", "details": str(e)}), 500
+
+# UPDATE LOCATIONS
+@app.route("/locations/<int:location_id>", methods=["PUT"])
+def update_location(location_id):
+    data = request.get_json()
+    location_name = data.get("location_name")
+    vehicle_id = data.get("vehicle_id")
+    is_available = data.get("is_available", True)
+
+    # VALIDATION
+    if not location_name or not isinstance(location_name, str):
+        return jsonify({"error": "Location name is required and must be a valid string"}), 400
+    if not vehicle_id or not isinstance(vehicle_id, int):
+        return jsonify({"error": "Vehicle ID is required and must be a valid integer"}), 400
+
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute(
+            "UPDATE Locations SET location_name = %s, vehicle_id = %s, is_available = %s WHERE location_id = %s",
+            (location_name, vehicle_id, is_available, location_id),
+        )
+        mysql.connection.commit()
+
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Location not found"}), 404
+
+        return jsonify({"message": "Location updated successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": "Database error", "details": str(e)}), 500
+
+#UPDATE RENTALS
+@app.route("/rentals/<int:rental_id>", methods=["PUT"])
+def update_rental(rental_id):
+    data = request.get_json()
+    customer_id = data.get("customer_id")
+    vehicle_id = data.get("vehicle_id")
+    date_from = data.get("date_from")
+    date_to = data.get("date_to")
+    total_cost = data.get("total_cost")
+
+    # VALIDATION
+    if not customer_id or not isinstance(customer_id, int):
+        return jsonify({"error": "Customer ID is required and must be a valid integer"}), 400
+    if not vehicle_id or not isinstance(vehicle_id, int):
+        return jsonify({"error": "Vehicle ID is required and must be a valid integer"}), 400
+    if not date_from or not date_to:
+        return jsonify({"error": "Date range is required"}), 400
+    if not total_cost or not isinstance(total_cost, (int, float)):
+        return jsonify({"error": "Total cost is required and must be a valid number"}), 400
+
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute(
+            "UPDATE Rentals SET customer_id = %s, vehicle_id = %s, date_from = %s, date_to = %s, total_cost = %s WHERE rental_id = %s",
+            (customer_id, vehicle_id, date_from, date_to, total_cost, rental_id),
+        )
+        mysql.connection.commit()
+
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Rental not found"}), 404
+
+        return jsonify({"message": "Rental updated successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": "Database error", "details": str(e)}), 500
+
 
 # DELETE CUSTOMERS
 @app.route("/customers/<int:customer_id>", methods=["DELETE"])
