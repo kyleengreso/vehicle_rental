@@ -1,4 +1,4 @@
-# Bookseller Database API
+# Vehicle Rental Database API
 
 ## Description
 A Flask-based REST API for managing customers, vehicles, locations, and rentals in a vehicle rental database.
@@ -10,7 +10,7 @@ pip install -r requirements.txt
 
 ## Configuration
 To configure the database:
-1. Upload the ```booksellerdb``` MySQL database to your server or local machine.
+1. Upload the ```vehicle_rental_db``` MySQL database to your server or local machine.
 2. Update the database configuration in the Flask app with your database connection details.
 
 Environment variables needed:
