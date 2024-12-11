@@ -13,7 +13,7 @@ app.config["MYSQL_HOST"] = "localhost"
 app.config["MYSQL_USER"] = "root"
 app.config["MYSQL_PASSWORD"] = "root"
 app.config["MYSQL_DB"] = "vehicle_rental_db"
-app.config["SECRET_KEY"] = "your_secret_key"
+app.config["SECRET_KEY"] = "kyle123"
 
 mysql = MySQL(app)
 auth = HTTPBasicAuth()
