@@ -5,6 +5,7 @@ import jwt
 import datetime
 import json
 from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
 
 app = Flask(__name__)
 
@@ -12,7 +13,7 @@ app.config["MYSQL_HOST"] = "localhost"
 app.config["MYSQL_USER"] = "root"
 app.config["MYSQL_PASSWORD"] = "root"
 app.config["MYSQL_DB"] = "vehicle_rental_db"
-app.config["SECRET_KEY"] = "kyle123"
+app.config["SECRET_KEY"] = "your_secret_key"
 
 mysql = MySQL(app)
 auth = HTTPBasicAuth()
@@ -37,6 +38,7 @@ def verify_password(username, password):
     if username in users and check_password_hash(users[username]['password'], password):
         return username
 
+# Generate JWT
 @app.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
@@ -46,6 +48,7 @@ def login():
     if username not in users or not check_password_hash(users[username]['password'], password):
         return jsonify({"error": "Invalid credentials"}), 401
 
+    # Check if token already exists for the user
     if 'token' not in users[username]:
         token = jwt.encode({
             "username": username,
@@ -80,8 +83,9 @@ def register():
 
     return jsonify({"message": "User registered successfully"}), 201
 
-# JWT Token validation decorator
+# JWT Token validation
 def token_required(f):
+    @wraps(f)
     def wrapper(*args, **kwargs):
         token = request.headers.get("Authorization")
 
@@ -98,6 +102,18 @@ def token_required(f):
 
         return f(*args, **kwargs)
     return wrapper
+
+# Role-based access control
+def role_required(required_role):
+    def decorator(f):
+        @wraps(f)  # This ensures the original function properties are preserved
+        def wrapper(*args, **kwargs):
+            username = getattr(request, "username", None)
+            if not username or users.get(username, {}).get("role") != required_role:
+                return jsonify({"error": "Access forbidden: insufficient permissions"}), 403
+            return f(*args, **kwargs)
+        return wrapper
+    return decorator
 
 @app.route("/")
 def hello_world():
@@ -116,6 +132,8 @@ def hello_world():
 
 # READ CUSTOMERS
 @app.route("/customers", methods=["GET"])
+@token_required
+@role_required("admin")
 def get_customers():
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT * FROM Customers")
@@ -182,6 +200,7 @@ def get_locations():
 
 #READ RENTAL
 @app.route("/rentals", methods=["GET"])
+@token_required
 def get_rentals():
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT * FROM Rentals")
