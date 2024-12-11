@@ -104,16 +104,18 @@ def token_required(f):
     return wrapper
 
 # Role-based access control
-def role_required(required_role):
+def role_required(required_roles):
     def decorator(f):
-        @wraps(f)  
+        @wraps(f)
         def wrapper(*args, **kwargs):
             username = getattr(request, "username", None)
-            if not username or users.get(username, {}).get("role") != required_role:
+            user_role = users.get(username, {}).get("role")
+            if not user_role or user_role not in required_roles:
                 return jsonify({"error": "Access forbidden: insufficient permissions"}), 403
             return f(*args, **kwargs)
         return wrapper
     return decorator
+
 
 @app.route("/")
 def hello_world():
