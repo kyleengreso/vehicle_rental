@@ -23,7 +23,7 @@ Environment variables needed:
 ## API Endpoints
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| /	| GET	| Welcome message |
+| /	| GET	| Home/Index |
 | /customers	| GET	| List all customers |
 | /customers	| POST	| Add a new customer |
 | /customers/<customer_id>	| PUT	| Update a customer's details |
