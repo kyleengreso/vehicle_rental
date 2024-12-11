@@ -1,5 +1,10 @@
 from flask import Flask, jsonify, request
 from flask_mysqldb import MySQL
+from flask_httpauth import HTTPBasicAuth
+import jwt
+import datetime
+import json
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
@@ -7,8 +12,92 @@ app.config["MYSQL_HOST"] = "localhost"
 app.config["MYSQL_USER"] = "root"
 app.config["MYSQL_PASSWORD"] = "root"
 app.config["MYSQL_DB"] = "vehicle_rental_db"
+app.config["SECRET_KEY"] = "kyle123"
 
 mysql = MySQL(app)
+auth = HTTPBasicAuth()
+
+USER_DATA_FILE = "users.json"
+
+def load_users():
+    try:
+        with open(USER_DATA_FILE, "r") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return {}
+
+def save_users(users):
+    with open(USER_DATA_FILE, "w") as file:
+        json.dump(users, file)
+
+users = load_users()
+
+@auth.verify_password
+def verify_password(username, password):
+    if username in users and check_password_hash(users[username]['password'], password):
+        return username
+
+@app.route("/login", methods=["POST"])
+def login():
+    data = request.get_json()
+    username = data.get("username")
+    password = data.get("password")
+
+    if username not in users or not check_password_hash(users[username]['password'], password):
+        return jsonify({"error": "Invalid credentials"}), 401
+
+    if 'token' not in users[username]:
+        token = jwt.encode({
+            "username": username,
+            "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+        }, app.config["SECRET_KEY"], algorithm="HS256")
+        users[username]['token'] = token
+        save_users(users)
+    else:
+        token = users[username]['token']
+
+    return jsonify({"token": token})
+
+# Register a new user
+@app.route("/register", methods=["POST"])
+def register():
+    data = request.get_json()
+    username = data.get("username")
+    password = data.get("password")
+    role = data.get("role", "user")  # Default role is "user"
+
+    if not username or not password:
+        return jsonify({"error": "Username and password are required"}), 400
+
+    if username in users:
+        return jsonify({"error": "User already exists"}), 400
+
+    users[username] = {
+        "password": generate_password_hash(password),
+        "role": role
+    }
+    save_users(users)
+
+    return jsonify({"message": "User registered successfully"}), 201
+
+# JWT Token validation decorator
+def token_required(f):
+    def wrapper(*args, **kwargs):
+        token = request.headers.get("Authorization")
+
+        if not token:
+            return jsonify({"error": "Token is missing"}), 401
+
+        try:
+            decoded_token = jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])
+            request.username = decoded_token["username"]
+        except jwt.ExpiredSignatureError:
+            return jsonify({"error": "Token has expired"}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({"error": "Invalid token"}), 401
+
+        return f(*args, **kwargs)
+    return wrapper
 
 @app.route("/")
 def hello_world():

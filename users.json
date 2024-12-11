@@ -1,0 +1,1 @@
+{"admin": {"password": "scrypt:32768:8:1$3IEhIyRnTJQsSRZ7$6d217a3a1b90eec2f80b534d6030663787e63aaf22be8b2643171e5fb4310d8075ababc53651fcb592a13be8099ca38e84a31f32d70278765a695ac7c0d6ef5b", "role": "admin", "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNzMzOTEyMzA2fQ.5f9mMScy-7d0UrDlg_lsX9j94O_JADs_aYxWoW1cKWA"}}
