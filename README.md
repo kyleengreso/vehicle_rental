@@ -18,6 +18,7 @@ Environment variables needed:
 - ```MYSQL_USER```: MySQL username (e.g., root)
 - ```MYSQL_PASSWORD```: MySQL password
 - ```MYSQL_DB```: Name of the database (e.g., vehicle_rental_db)
+- ```SECRET_KEY```: kyle123
 
 ## API Endpoints
 | Endpoint | Method | Description |
