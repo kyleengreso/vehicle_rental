@@ -226,7 +226,7 @@ def get_rentals():
 # ADD CUSTOMERS
 @app.route("/customers", methods=["POST"])
 @token_required
-@role_required("staff" or "admin")
+@role_required(["staff", "admin"])
 def add_customer():
     data = request.get_json()
     customer_name = data.get("customer_name")
@@ -252,7 +252,7 @@ def add_customer():
 #ADD VEHICLES
 @app.route("/vehicles", methods=["POST"])
 @token_required
-@role_required("staff" or "admin")
+@role_required(["staff", "admin"])
 def add_vehicle():
     data = request.get_json()
     reg_number = data.get("reg_number")
@@ -284,7 +284,7 @@ def add_vehicle():
 #ADD LOCATIONS
 @app.route("/locations", methods=["POST"])
 @token_required
-@role_required("staff" or "admin")
+@role_required(["staff", "admin"])
 def add_location():
     data = request.get_json()
     location_name = data.get("location_name")
@@ -313,7 +313,7 @@ def add_location():
 #ADD RENTALS
 @app.route("/rentals", methods=["POST"])
 @token_required
-@role_required("staff" or "admin")
+@role_required(["staff", "admin"])
 def add_rental():
     data = request.get_json()
     customer_id = data.get("customer_id")
@@ -348,7 +348,7 @@ def add_rental():
 # UPDATE CUSTOMERS
 @app.route("/customers/<int:customer_id>", methods=["PUT"])
 @token_required
-@role_required("staff" or "admin")
+@role_required(["staff", "admin"])
 def update_customer(customer_id):
     data = request.get_json()
     customer_name = data.get("customer_name")
@@ -376,7 +376,7 @@ def update_customer(customer_id):
 # UPDATE VEHICLES
 @app.route("/vehicles/<int:vehicle_id>", methods=["PUT"])
 @token_required
-@role_required("staff" or "admin")
+@role_required(["staff", "admin"])
 def update_vehicle(vehicle_id):
     data = request.get_json()
     reg_number = data.get("reg_number")
@@ -410,7 +410,7 @@ def update_vehicle(vehicle_id):
 # UPDATE LOCATIONS
 @app.route("/locations/<int:location_id>", methods=["PUT"])
 @token_required
-@role_required("staff" or "admin")
+@role_required(["staff", "admin"])
 def update_location(location_id):
     data = request.get_json()
     location_name = data.get("location_name")
@@ -441,7 +441,7 @@ def update_location(location_id):
 #UPDATE RENTALS
 @app.route("/rentals/<int:rental_id>", methods=["PUT"])
 @token_required
-@role_required("staff" or "admin")
+@role_required(["staff", "admin"])
 def update_rental(rental_id):
     data = request.get_json()
     customer_id = data.get("customer_id")
@@ -479,7 +479,7 @@ def update_rental(rental_id):
 # DELETE CUSTOMERS
 @app.route("/customers/<int:customer_id>", methods=["DELETE"])
 @token_required
-@role_required("staff" or "admin")
+@role_required(["staff", "admin"])
 def delete_customer(customer_id):
     try:
         cursor = mysql.connection.cursor()
