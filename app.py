@@ -119,18 +119,40 @@ def role_required(required_roles):
 
 @app.route("/")
 def hello_world():
-    
     style = """
         <style>
             p {
                 font-family: Arial, sans-serif;
-                font-size: 50px;
+                font-size: 20px;
                 color: blue;
                 text-align: center;
             }
+            a {
+                font-family: Arial, sans-serif;
+                font-size: 20px;
+                color: green;
+                text-decoration: none;
+            }
+            a:hover {
+                text-decoration: underline;
+            }
         </style>
     """
-    return f"{style} <p>VEHICLE RENTAL SYSTEM MANAGEMENT</p>"
+    
+    no_token_routes = [
+        {"name": "Home", "url": "/"},
+        {"name": "View Vehicles", "url": "/vehicles"},
+        {"name": "View Locations", "url": "/locations"},
+    ]
+
+    no_token_links = "".join([f'<p><a href="{route["url"]}">{route["name"]}</a></p>' for route in no_token_routes])
+    
+    return f"""
+        {style}
+        <p>VEHICLE RENTAL SYSTEM MANAGEMENT</p>
+        {no_token_links}
+    """
+
 
 # READ CUSTOMERS
 @app.route("/customers", methods=["GET"])
